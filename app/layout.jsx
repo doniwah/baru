@@ -1,9 +1,9 @@
 import "@/app/_styles/globals.css";
 import { Inter as FontSans } from "next/font/google";
-import { cn } from '../_lib/utils'
-import NprogressProviders from "../_providers/nprogress-provider";
-import ThemeProvider from "../_providers/theme-provider";
-import { Toaster } from "../_components/ui/toaster";
+import { cn } from '@/app/_lib/utils'
+import NprogressProviders from "./_providers/nprogress-provider";
+import ThemeProvider from "./_providers/theme-provider";
+import { Toaster } from "./_components/ui/toaster";
 
 export const fontSans = FontSans({
   weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],

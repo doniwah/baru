@@ -3,7 +3,7 @@ import './style.css';
 
 const PdfLoading = () => {
     return (
-        <div className="absolute top-0 left-0 flex items-center justify-center h-full w-full bg-background">
+        <div className="absolute top-0 left-0 flex items-center justify-center h-full w-full bg-transparent">
             <div className="flex items-center gap-3 p-2 rounded-md">
                 <div className="w-14 h-fit flex items-center justify-end relative animate-pulse">
                     <svg
@@ -80,7 +80,7 @@ const PdfLoading = () => {
                     </svg>
                 </div>
                 <div className="text-base font-semibold">
-                    Loading PDF...
+                    Flipbook Load...
                 </div>
             </div>
         </div>

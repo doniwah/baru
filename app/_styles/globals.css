@@ -179,3 +179,76 @@ body {
   background: url('/bg-property.jpg') no-repeat center center fixed;
   background-size: cover;
 }
+
+/* Enhanced Book Shadow Effects */
+/* Spine shadow (center dark shadow like real book) */
+.stf__wrapper .stf__block .stf__item.--hard.--left::after,
+.stf__wrapper .stf__block .stf__item.--hard.--right::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 40px;
+  background: linear-gradient(to right, transparent, rgba(0, 0, 0, 0.4) 50%, transparent);
+  pointer-events: none;
+  z-index: 10;
+}
+
+.stf__wrapper .stf__block .stf__item.--hard.--left::after {
+  right: 0;
+  background: linear-gradient(to left, rgba(0, 0, 0, 0.5), transparent);
+}
+
+.stf__wrapper .stf__block .stf__item.--hard.--right::after {
+  left: 0;
+  background: linear-gradient(to right, rgba(0, 0, 0, 0.5), transparent);
+}
+
+/* Enhanced page shadows */
+.stf__wrapper .stf__block .stf__item {
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+}
+
+/* Page Stack Effect - Creates visual thickness on book edges */
+/* Left side pages (already read) */
+.stf__wrapper .stf__block .stf__item.--left {
+  box-shadow: 
+    -2px 0 3px rgba(0, 0, 0, 0.2),
+    -4px 0 4px rgba(0, 0, 0, 0.15),
+    -6px 0 5px rgba(0, 0, 0, 0.1),
+    -8px 0 6px rgba(0, 0, 0, 0.08),
+    -10px 0 8px rgba(0, 0, 0, 0.05);
+}
+
+/* Right side pages (not yet read) */
+.stf__wrapper .stf__block .stf__item.--right {
+  box-shadow: 
+    2px 0 3px rgba(0, 0, 0, 0.2),
+    4px 0 4px rgba(0, 0, 0, 0.15),
+    6px 0 5px rgba(0, 0, 0, 0.1),
+    8px 0 6px rgba(0, 0, 0, 0.08),
+    10px 0 8px rgba(0, 0, 0, 0.05);
+}
+
+/* Add page edges visual effect */
+.stf__wrapper .stf__block .stf__item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: linear-gradient(to bottom, 
+    rgba(200, 200, 200, 0.3) 0%, 
+    rgba(150, 150, 150, 0.2) 50%, 
+    rgba(200, 200, 200, 0.3) 100%
+  );
+  pointer-events: none;
+}
+
+.stf__wrapper .stf__block .stf__item.--left::before {
+  left: 0;
+}
+
+.stf__wrapper .stf__block .stf__item.--right::before {
+  right: 0;
+}

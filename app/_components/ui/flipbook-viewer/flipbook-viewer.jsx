@@ -59,6 +59,28 @@ const FlipbookViewer = ({ pdfUrl, shareUrl, className, disableShare }) => {
     }
   }, []);
 
+  // Custom zoom functions
+  const handleZoomIn = useCallback(() => {
+    setViewerStates(prev => ({
+      ...prev,
+      zoomScale: Math.min(prev.zoomScale + 0.25, 5)
+    }));
+  }, []);
+
+  const handleZoomOut = useCallback(() => {
+    setViewerStates(prev => ({
+      ...prev,
+      zoomScale: Math.max(prev.zoomScale - 0.25, 1)
+    }));
+  }, []);
+
+  const handleResetZoom = useCallback(() => {
+    setViewerStates(prev => ({
+      ...prev,
+      zoomScale: 1
+    }));
+  }, []);
+
   return (
     <div 
       ref={containerRef} 
@@ -73,13 +95,23 @@ const FlipbookViewer = ({ pdfUrl, shareUrl, className, disableShare }) => {
         {(isClient && pdfDetails && !pdfLoading) &&
           <div className="w-full h-full relative bg-transparent flex flex-col">
             <div className="flex-1 overflow-hidden">
-              <Flipbook
-                viewerStates={viewerStates}
-                setViewerStates={setViewerStates}
-                flipbookRef={flipbookRef}
-                screenfull={screenfull}
-                pdfDetails={pdfDetails}
-              />
+              <div 
+                style={{
+                  transform: `scale(${viewerStates.zoomScale})`,
+                  transformOrigin: 'center center',
+                  transition: 'transform 0.2s ease-out',
+                  width: '100%',
+                  height: '100%'
+                }}
+              >
+                <Flipbook
+                  viewerStates={viewerStates}
+                  setViewerStates={setViewerStates}
+                  flipbookRef={flipbookRef}
+                  screenfull={screenfull}
+                  pdfDetails={pdfDetails}
+                />
+              </div>
             </div>
             <div className={cn(
               "w-full",
@@ -94,6 +126,9 @@ const FlipbookViewer = ({ pdfUrl, shareUrl, className, disableShare }) => {
                 pdfDetails={pdfDetails}
                 shareUrl={shareUrl}
                 disableShare={disableShare}
+                onZoomIn={handleZoomIn}
+                onZoomOut={handleZoomOut}
+                onResetZoom={handleResetZoom}
               />
             </div>
           </div>

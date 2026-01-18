@@ -67,6 +67,41 @@ const Flipbook = memo(({ viewerStates, setViewerStates, flipbookRef, pdfDetails 
         };
     }, [handleFullscreenChange]);
 
+    // Wheel scroll navigation >>>>>>>>
+    useEffect(() => {
+        const container = ref.current;
+        if (!container || !flipbookRef?.current) return;
+
+        let scrollTimeout;
+        const handleWheel = (e) => {
+            // Don't interfere with zoom scrolling
+            if (viewerStates.zoomScale > 1) return;
+            
+            e.preventDefault();
+            
+            // Debounce to prevent rapid page changes
+            clearTimeout(scrollTimeout);
+            scrollTimeout = setTimeout(() => {
+                const pageFlip = flipbookRef.current.pageFlip();
+                
+                if (e.deltaY > 0) {
+                    // Scroll down = next page (slide left)
+                    pageFlip.flipNext();
+                } else if (e.deltaY < 0) {
+                    // Scroll up = previous page (slide right)
+                    pageFlip.flipPrev();
+                }
+            }, 100);
+        };
+
+        container.addEventListener('wheel', handleWheel, { passive: false });
+        
+        return () => {
+            container.removeEventListener('wheel', handleWheel);
+            clearTimeout(scrollTimeout);
+        };
+    }, [flipbookRef, viewerStates.zoomScale, ref]);
+
     return (
         <div ref={ref} className={cn(
     "relative h-[15rem] xs:h-[20rem] lg:h-[28rem] xl:h-[30rem] w-full flex justify-center items-center overflow-hidden bg-transparent",

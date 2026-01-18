@@ -8,50 +8,53 @@ import SliderNav from './slider-nav/slider-nav';
 import useScreenSize from '@/app/_hooks/use-screensize';
 import Share from '../../share';
 
-const Toolbar = ({ flipbookRef, containerRef, screenfull, pdfDetails, viewerStates, shareUrl, disableShare }) => {
+const Toolbar = ({ flipbookRef, containerRef, screenfull, pdfDetails, viewerStates, shareUrl, disableShare, onZoomIn, onZoomOut, onResetZoom }) => {
     const { width: screenWidth } = useScreenSize();
     const pagesInFlipView = ((viewerStates.currentPageIndex + 1) % 2 === 0 && (viewerStates.currentPageIndex + 1) !== pdfDetails.totalPages)
         ? `${(viewerStates.currentPageIndex + 1)} - ${viewerStates.currentPageIndex + 2}`
         : (viewerStates.currentPageIndex + 1)
 
-    // Full screen >>>>>>>>>
     const fullScreen = useCallback(() => {
-        if (screenfull.isEnabled) {
-            screenfull.toggle(containerRef.current, { navigationUI: "hide" });
+        if (screenfull.isEnabled && containerRef) {
+            screenfull.toggle(containerRef.current);
         }
-        screenfull.on('error', (event) => {
-            alert('Failed to enable fullscreen', event);
-        });
     }, [screenfull, containerRef]);
 
-    // Keyboard shortcuts >>>>>>>>>
+    // Key bindings >>>>>>>>>
     useEffect(() => {
-        const handleRight = () => flipbookRef.current.pageFlip().flipNext();
-        const handleLeft = () => flipbookRef.current.pageFlip().flipPrev();
+        keyboardjs.bind('right', () => {
+            screenWidth < 768 ? flipbookRef.current.pageFlip().turnToNextPage() : flipbookRef.current.pageFlip().flipNext();
+        });
 
-        keyboardjs.bind('right', null, handleRight);
-        keyboardjs.bind('left', null, handleLeft);
-        // keyboardjs.bind('f', null, fullScreen);
+        keyboardjs.bind('left', () => {
+            screenWidth < 768 ? flipbookRef.current.pageFlip().turnToPreviousPage() : flipbookRef.current.pageFlip().flipPrev();
+        });
+        keyboardjs.bind('f', () => fullScreen());
+        keyboardjs.bind('escape', () => {
+            if (screenfull.isFullscreen) {
+                fullScreen();
+            }
+        });
 
         return () => {
-            keyboardjs.unbind('right', null, handleRight);
-            keyboardjs.unbind('left', null, handleLeft);
-            // keyboardjs.unbind('f', null, fullScreen);
+            keyboardjs.unbind('right');
+            keyboardjs.unbind('left');
+            keyboardjs.unbind('f');
+            keyboardjs.unbind('escape');
         };
-    }, [flipbookRef, fullScreen]);
+    }, [screenWidth, flipbookRef, fullScreen, screenfull]);
 
     return (
         <div className="px-3 w-full bg-transparent">
-            <SliderNav
-                flipbookRef={flipbookRef}
-                pdfDetails={pdfDetails}
-                viewerStates={viewerStates}
-                screenWidth={screenWidth}
+            <SliderNav 
+                pdfDetails={pdfDetails} 
+                flipbookRef={flipbookRef} 
+                viewerStates={viewerStates} 
             />
             <div className="flex items-center gap-2 pb-2 max-xl:pt-2">
                 <div className="hidden lg:block flex-1"></div>
                 <Button
-                    onClick={() => { screenWidth < 768 ? flipbookRef.current.pageFlip().turnToPrevPage() : flipbookRef.current.pageFlip().flipPrev() }}
+                    onClick={() => { screenWidth < 768 ? flipbookRef.current.pageFlip().turnToPreviousPage() : flipbookRef.current.pageFlip().flipPrev() }}
                     disabled={viewerStates.currentPageIndex === 0}
                     variant='secondary'
                     size='icon'
@@ -68,7 +71,13 @@ const Toolbar = ({ flipbookRef, containerRef, screenfull, pdfDetails, viewerStat
                 >
                     <ChevronRight className="size-4 min-w-4" />
                 </Button>
-                <Zoom zoomScale={viewerStates.zoomScale} screenWidth={screenWidth} />
+                <Zoom 
+                    zoomScale={viewerStates.zoomScale} 
+                    screenWidth={screenWidth}
+                    onZoomIn={onZoomIn}
+                    onZoomOut={onZoomOut}
+                    onResetZoom={onResetZoom}
+                />
                 {!disableShare && <Share shareUrl={shareUrl} />}
                 <Button
                     onClick={fullScreen}

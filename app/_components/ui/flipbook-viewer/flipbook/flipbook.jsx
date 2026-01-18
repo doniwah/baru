@@ -3,7 +3,6 @@ import React, { memo, useState, useEffect, useCallback } from 'react';
 import useRefSize from '@/app/_hooks/use-ref-size';
 import FlipbookLoader from './flipbook-loader';
 import { cn } from '@/app/_lib/utils';
-import { TransformComponent } from 'react-zoom-pan-pinch';
 import screenfull from 'screenfull';
 
 const Flipbook = memo(({ viewerStates, setViewerStates, flipbookRef, pdfDetails }) => {
@@ -11,21 +10,43 @@ const Flipbook = memo(({ viewerStates, setViewerStates, flipbookRef, pdfDetails 
     const [scale, setScale] = useState(1); // Max scale for flipbook
     const [wrapperCss, setWrapperCss] = useState({});
     const [viewRange, setViewRange] = useState([0, 4]);
+    const [isFullscreen, setIsFullscreen] = useState(false);
+
+    // Track fullscreen state
+    useEffect(() => {
+        if (screenfull) {
+            const handleChange = () => {
+                setIsFullscreen(screenfull.isFullscreen);
+            };
+            screenfull.on('change', handleChange);
+            return () => screenfull.off('change', handleChange);
+        }
+    }, []);
 
     // Calculate scale when pageSize or dimensions change >>>>>>>>
     useEffect(() => {
         if (pdfDetails && width && height) {
-            const calculatedScale = Math.min(
-                width / (2 * pdfDetails.width),
-                height / pdfDetails.height
-            );
+            let calculatedScale;
+            
+            if (isFullscreen) {
+                // For fullscreen: scale based on width only to maximize size
+                // This will fill the screen horizontally
+                calculatedScale = width / (2 * pdfDetails.width);
+            } else {
+                // For normal mode: use Math.min to fit within container
+                calculatedScale = Math.min(
+                    width / (2 * pdfDetails.width),
+                    height / pdfDetails.height
+                );
+            }
+            
             setScale(calculatedScale);
             setWrapperCss({
                 width: `${pdfDetails.width * calculatedScale * 2}px`,
                 height: `${pdfDetails.height * calculatedScale}px`,
             });
         }
-    }, [pdfDetails, width, height]);
+    }, [pdfDetails, width, height, isFullscreen]);
 
     // Refresh flipbook size & page range on window resize >>>>>>>>
     const shrinkPageLoadingRange = useCallback(() => {
@@ -53,25 +74,23 @@ const Flipbook = memo(({ viewerStates, setViewerStates, flipbookRef, pdfDetails 
         <div ref={ref} className={cn(
     "relative h-[15rem] xs:h-[20rem] lg:h-[28rem] xl:h-[30rem] w-full flex justify-center items-center overflow-hidden bg-transparent",
     screenfull?.isFullscreen &&
-      "h-[calc(100vh-5.163rem)] bg-transparent"
+      "!h-screen bg-black"
   )}>
-            <TransformComponent wrapperStyle={{ width: "100%", height: "100%", background: "transparent" }} contentStyle={{ width: "100%", height: "100%", background: "transparent" }}>
-                <div className='overflow-hidden flex justify-center items-center h-full w-full'>
-                    {pdfDetails && scale && (
-                        <div style={wrapperCss}>
-                            <FlipbookLoader
-                                ref={flipbookRef}
-                                pdfDetails={pdfDetails}
-                                scale={scale}
-                                viewRange={viewRange}
-                                setViewRange={setViewRange}
-                                viewerStates={viewerStates}
-                                setViewerStates={setViewerStates}
-                            />
-                        </div>
-                    )}
-                </div>
-            </TransformComponent>
+            <div className='overflow-hidden flex justify-center items-center h-full w-full'>
+                {pdfDetails && scale && (
+                    <div style={wrapperCss}>
+                        <FlipbookLoader
+                            ref={flipbookRef}
+                            pdfDetails={pdfDetails}
+                            scale={scale}
+                            viewRange={viewRange}
+                            setViewRange={setViewRange}
+                            viewerStates={viewerStates}
+                            setViewerStates={setViewerStates}
+                        />
+                    </div>
+                )}
+            </div>
         </div>
     );
 });

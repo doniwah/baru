@@ -1,3 +1,4 @@
+'use client';
 import React, { useEffect, useCallback } from 'react';
 import { Button } from '../../button';
 import { ChevronLeft, ChevronRight, Maximize, Minimize } from 'lucide-react';

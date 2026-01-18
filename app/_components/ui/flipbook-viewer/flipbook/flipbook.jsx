@@ -12,33 +12,30 @@ const Flipbook = memo(({ viewerStates, setViewerStates, flipbookRef, pdfDetails 
     const [viewRange, setViewRange] = useState([0, 4]);
     const [isFullscreen, setIsFullscreen] = useState(false);
 
-    // Track fullscreen state
+    // Track fullscreen state and trigger refresh
     useEffect(() => {
         if (screenfull) {
             const handleChange = () => {
-                setIsFullscreen(screenfull.isFullscreen);
+                const newFullscreenState = screenfull.isFullscreen;
+                setIsFullscreen(newFullscreenState);
+                // Force refresh size calculation when fullscreen changes
+                setTimeout(() => {
+                    refreshSize();
+                }, 100);
             };
             screenfull.on('change', handleChange);
             return () => screenfull.off('change', handleChange);
         }
-    }, []);
+    }, [refreshSize]);
 
     // Calculate scale when pageSize or dimensions change >>>>>>>>
     useEffect(() => {
         if (pdfDetails && width && height) {
-            let calculatedScale;
-            
-            if (isFullscreen) {
-                // For fullscreen: scale based on width only to maximize size
-                // This will fill the screen horizontally
-                calculatedScale = width / (2 * pdfDetails.width);
-            } else {
-                // For normal mode: use Math.min to fit within container
-                calculatedScale = Math.min(
-                    width / (2 * pdfDetails.width),
-                    height / pdfDetails.height
-                );
-            }
+            // Always use Math.min to prevent cropping
+            const calculatedScale = Math.min(
+                width / (2 * pdfDetails.width),
+                height / pdfDetails.height
+            );
             
             setScale(calculatedScale);
             setWrapperCss({

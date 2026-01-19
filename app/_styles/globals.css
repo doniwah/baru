@@ -71,7 +71,7 @@
     @apply border-border;
   }
 
-    body {
+  body {
     @apply text-foreground;
     background: transparent;
   }
@@ -141,7 +141,8 @@
   background: transparent !important;
 }
 
-html, body {
+html,
+body {
   width: 100%;
   min-height: 100%;
   background-image: url('/background.jpg');
@@ -175,80 +176,99 @@ main,
 .react-transform-component {
   background: transparent !important;
 }
+
 body {
   background: url('/bg-property.jpg') no-repeat center center fixed;
   background-size: cover;
 }
 
-/* Enhanced Book Shadow Effects */
-/* Spine shadow (center dark shadow like real book) */
-.stf__wrapper .stf__block .stf__item.--hard.--left::after,
-.stf__wrapper .stf__block .stf__item.--hard.--right::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  width: 40px;
-  background: linear-gradient(to right, transparent, rgba(0, 0, 0, 0.4) 50%, transparent);
-  pointer-events: none;
-  z-index: 10;
-}
+/* Enhanced Book Shadow Effects - Desktop Only */
+@media (min-width: 768px) {
 
-.stf__wrapper .stf__block .stf__item.--hard.--left::after {
-  right: 0;
-  background: linear-gradient(to left, rgba(0, 0, 0, 0.5), transparent);
-}
+  /* Spine shadow (center dark shadow like real book) */
+  .stf__wrapper .stf__block .stf__item.--hard.--left::after,
+  .stf__wrapper .stf__block .stf__item.--hard.--right::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 60px;
+    background: linear-gradient(to right, transparent, rgba(0, 0, 0, 0.8) 50%, transparent);
+    pointer-events: none;
+    z-index: 10;
+  }
 
-.stf__wrapper .stf__block .stf__item.--hard.--right::after {
-  left: 0;
-  background: linear-gradient(to right, rgba(0, 0, 0, 0.5), transparent);
-}
+  .stf__wrapper .stf__block .stf__item.--hard.--left::after {
+    right: 0;
+    background: linear-gradient(to left, rgba(0, 0, 0, 0.9), transparent);
+  }
 
-/* Enhanced page shadows */
-.stf__wrapper .stf__block .stf__item {
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
-}
+  .stf__wrapper .stf__block .stf__item.--hard.--right::after {
+    left: 0;
+    background: linear-gradient(to right, rgba(0, 0, 0, 0.9), transparent);
+  }
 
-/* Page Stack Effect - Creates visual thickness on book edges */
-/* Left side pages (already read) */
-.stf__wrapper .stf__block .stf__item.--left {
-  box-shadow: 
-    -2px 0 3px rgba(0, 0, 0, 0.2),
-    -4px 0 4px rgba(0, 0, 0, 0.15),
-    -6px 0 5px rgba(0, 0, 0, 0.1),
-    -8px 0 6px rgba(0, 0, 0, 0.08),
-    -10px 0 8px rgba(0, 0, 0, 0.05);
-}
+  /* Enhanced page shadows */
+  .stf__wrapper .stf__block .stf__item {
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.5);
+  }
 
-/* Right side pages (not yet read) */
-.stf__wrapper .stf__block .stf__item.--right {
-  box-shadow: 
-    2px 0 3px rgba(0, 0, 0, 0.2),
-    4px 0 4px rgba(0, 0, 0, 0.15),
-    6px 0 5px rgba(0, 0, 0, 0.1),
-    8px 0 6px rgba(0, 0, 0, 0.08),
-    10px 0 8px rgba(0, 0, 0, 0.05);
-}
+  /* Page Stack Effect - Creates visual thickness on book edges */
+  /* Left side pages (already read) - EXTREME STACKING */
+  .stf__wrapper .stf__block .stf__item.--left {
+    box-shadow:
+      -4px 0 6px rgba(0, 0, 0, 0.4),
+      -8px 0 8px rgba(0, 0, 0, 0.35),
+      -12px 0 10px rgba(0, 0, 0, 0.3),
+      -16px 0 12px rgba(0, 0, 0, 0.25),
+      -20px 0 14px rgba(0, 0, 0, 0.2),
+      -24px 0 16px rgba(0, 0, 0, 0.15),
+      -28px 0 18px rgba(0, 0, 0, 0.1),
+      -32px 0 20px rgba(0, 0, 0, 0.08);
+  }
 
-/* Add page edges visual effect */
-.stf__wrapper .stf__block .stf__item::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  width: 2px;
-  background: linear-gradient(to bottom, 
-    rgba(200, 200, 200, 0.3) 0%, 
-    rgba(150, 150, 150, 0.2) 50%, 
-    rgba(200, 200, 200, 0.3) 100%
-  );
-  pointer-events: none;
-}
+  /* Right side pages (not yet read) - EXTREME STACKING */
+  .stf__wrapper .stf__block .stf__item.--right {
+    box-shadow:
+      4px 0 6px rgba(0, 0, 0, 0.4),
+      8px 0 8px rgba(0, 0, 0, 0.35),
+      12px 0 10px rgba(0, 0, 0, 0.3),
+      16px 0 12px rgba(0, 0, 0, 0.25),
+      20px 0 14px rgba(0, 0, 0, 0.2),
+      24px 0 16px rgba(0, 0, 0, 0.15),
+      28px 0 18px rgba(0, 0, 0, 0.1),
+      32px 0 20px rgba(0, 0, 0, 0.08);
+  }
 
-.stf__wrapper .stf__block .stf__item.--left::before {
-  left: 0;
-}
+  /* Add page edges visual effect - THICKER */
+  .stf__wrapper .stf__block .stf__item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 5px;
+    background: linear-gradient(to bottom,
+        rgba(100, 100, 100, 0.5) 0%,
+        rgba(50, 50, 50, 0.4) 50%,
+        rgba(100, 100, 100, 0.5) 100%);
+    pointer-events: none;
+    z-index: 5;
+  }
 
-.stf__wrapper .stf__block .stf__item.--right::before {
-  right: 0;
+  .stf__wrapper .stf__block .stf__item.--left::before {
+    left: 0;
+  }
+
+  .stf__wrapper .stf__block .stf__item.--right::before {
+    right: 0;
+  }
+
+  /* Additional stacking layers using after pseudo-element for depth */
+  .stf__wrapper .stf__block .stf__item.--left {
+    position: relative;
+  }
+
+  .stf__wrapper .stf__block .stf__item.--right {
+    position: relative;
+  }
 }

@@ -45,7 +45,13 @@ const FlipbookLoader = forwardRef(({ pdfDetails, scale, viewerStates, setViewerS
                 showPageCorners={false}
                 onFlip={onFlip}
                 disableFlipByClick={width < 768 ? true : false}
-                className={cn(viewerStates.zoomScale > 1 && 'pointer-events-none md:pointer-events-none')}
+                className={cn(
+                    viewerStates.zoomScale > 1 && 'pointer-events-none md:pointer-events-none',
+                    width >= 768 && 'flipbook-stacked'
+                )}
+                style={{
+                    filter: width >= 768 ? 'drop-shadow(0 4px 8px rgba(0,0,0,0.2)) drop-shadow(0 8px 16px rgba(0,0,0,0.15)) drop-shadow(0 12px 24px rgba(0,0,0,0.1))' : 'none'
+                }}
             >
                 {
                     Array.from({ length: pdfDetails.totalPages }, (_, index) => (

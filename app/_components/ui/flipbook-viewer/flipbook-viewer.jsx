@@ -35,9 +35,9 @@ const FlipbookViewer = ({ pdfUrl, shareUrl, className, disableShare }) => {
       const handleFullscreenChange = () => {
         setIsFullscreen(screenfull.isFullscreen);
       };
-      
+
       screenfull.on('change', handleFullscreenChange);
-      
+
       return () => {
         screenfull.off('change', handleFullscreenChange);
       };
@@ -82,20 +82,21 @@ const FlipbookViewer = ({ pdfUrl, shareUrl, className, disableShare }) => {
   }, []);
 
   return (
-    <div 
-      ref={containerRef} 
+    <div
+      ref={containerRef}
       className={cn(
-        "relative h-[20.163rem] xs:h-[25.163rem] lg:h-[33.163rem] xl:h-[34.66rem] w-full overflow-hidden",
-        isFullscreen ? "bg-black" : "bg-transparent",
+        "relative w-full overflow-hidden",
+        "h-[80vh] md:h-[20.163rem] md:xs:h-[25.163rem] lg:h-[33.163rem] xl:h-[34.66rem]",
+        isFullscreen ? "bg-black !h-screen" : "bg-transparent",
         className
       )}
     >
       {pdfLoading && <PdfLoading />}
       <Document file={pdfUrl} onLoadSuccess={onDocumentLoadSuccess} loading={<></>} >
         {(isClient && pdfDetails && !pdfLoading) &&
-          <div className="w-full h-full relative bg-transparent flex flex-col">
-            <div className="flex-1 overflow-hidden">
-              <div 
+          <div className="w-full h-full relative bg-transparent flex items-center justify-center">
+            <div className="w-full h-full overflow-hidden flex items-center justify-center">
+              <div
                 style={{
                   transform: `scale(${viewerStates.zoomScale})`,
                   transformOrigin: 'center center',
@@ -113,10 +114,7 @@ const FlipbookViewer = ({ pdfUrl, shareUrl, className, disableShare }) => {
                 />
               </div>
             </div>
-            <div className={cn(
-              "w-full",
-              isFullscreen && "absolute bottom-0 left-0 right-0 z-50"
-            )}>
+            <div className="fixed bottom-0 left-0 right-0 z-50 w-full">
               <Toolbar
                 viewerStates={viewerStates}
                 setViewerStates={setViewerStates}

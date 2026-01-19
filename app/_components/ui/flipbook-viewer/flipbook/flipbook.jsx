@@ -31,15 +31,23 @@ const Flipbook = memo(({ viewerStates, setViewerStates, flipbookRef, pdfDetails 
     // Calculate scale when pageSize or dimensions change >>>>>>>>
     useEffect(() => {
         if (pdfDetails && width && height) {
+            const isMobile = width < 768;
+            const pageMultiplier = isMobile ? 1 : 2;
+
+            // No padding offset - maximize PDF size
+            const paddingOffset = 0;
+            const availableWidth = width - paddingOffset;
+            const availableHeight = height - paddingOffset;
+
             // Always use Math.min to prevent cropping
             const calculatedScale = Math.min(
-                width / (2 * pdfDetails.width),
-                height / pdfDetails.height
+                availableWidth / (pageMultiplier * pdfDetails.width),
+                availableHeight / pdfDetails.height
             );
-            
+
             setScale(calculatedScale);
             setWrapperCss({
-                width: `${pdfDetails.width * calculatedScale * 2}px`,
+                width: `${pdfDetails.width * calculatedScale * pageMultiplier}px`,
                 height: `${pdfDetails.height * calculatedScale}px`,
             });
         }
@@ -76,14 +84,14 @@ const Flipbook = memo(({ viewerStates, setViewerStates, flipbookRef, pdfDetails 
         const handleWheel = (e) => {
             // Don't interfere with zoom scrolling
             if (viewerStates.zoomScale > 1) return;
-            
+
             e.preventDefault();
-            
+
             // Debounce to prevent rapid page changes
             clearTimeout(scrollTimeout);
             scrollTimeout = setTimeout(() => {
                 const pageFlip = flipbookRef.current.pageFlip();
-                
+
                 if (e.deltaY > 0) {
                     // Scroll down = next page (slide left)
                     pageFlip.flipNext();
@@ -95,7 +103,7 @@ const Flipbook = memo(({ viewerStates, setViewerStates, flipbookRef, pdfDetails 
         };
 
         container.addEventListener('wheel', handleWheel, { passive: false });
-        
+
         return () => {
             container.removeEventListener('wheel', handleWheel);
             clearTimeout(scrollTimeout);
@@ -104,10 +112,10 @@ const Flipbook = memo(({ viewerStates, setViewerStates, flipbookRef, pdfDetails 
 
     return (
         <div ref={ref} className={cn(
-    "relative h-[15rem] xs:h-[20rem] lg:h-[28rem] xl:h-[30rem] w-full flex justify-center items-center overflow-hidden bg-transparent",
-    screenfull?.isFullscreen &&
-      "!h-screen bg-black"
-  )}>
+            "relative h-[15rem] xs:h-[20rem] lg:h-[28rem] xl:h-[30rem] w-full flex justify-center items-center overflow-hidden bg-transparent",
+            screenfull?.isFullscreen &&
+            "!h-screen bg-black"
+        )}>
             <div className='overflow-hidden flex justify-center items-center h-full w-full'>
                 {pdfDetails && scale && (
                     <div style={wrapperCss}>

@@ -46,51 +46,51 @@ const Toolbar = ({ flipbookRef, containerRef, screenfull, pdfDetails, viewerStat
 
     return (
         <div className="px-3 w-full bg-transparent">
-            <SliderNav 
-                pdfDetails={pdfDetails} 
-                flipbookRef={flipbookRef} 
-                viewerStates={viewerStates} 
+            <SliderNav
+                pdfDetails={pdfDetails}
+                flipbookRef={flipbookRef}
+                viewerStates={viewerStates}
             />
-            <div className="flex items-center gap-2 pb-2 max-xl:pt-2">
-                <div className="hidden lg:block flex-1"></div>
-                <Button
-                    onClick={() => { screenWidth < 768 ? flipbookRef.current.pageFlip().turnToPreviousPage() : flipbookRef.current.pageFlip().flipPrev() }}
-                    disabled={viewerStates.currentPageIndex === 0}
-                    variant='secondary'
-                    size='icon'
-                    className='size-8 min-w-8'
-                >
-                    <ChevronLeft className="size-4 min-w-4" />
-                </Button>
-                <Button
-                    onClick={() => { screenWidth < 768 ? flipbookRef.current.pageFlip().turnToNextPage() : flipbookRef.current.pageFlip().flipNext() }}
-                    disabled={viewerStates.currentPageIndex === pdfDetails?.totalPages - 1 || viewerStates.currentPageIndex === pdfDetails?.totalPages - 2}
-                    variant='secondary'
-                    size='icon'
-                    className='size-8 min-w-8'
-                >
-                    <ChevronRight className="size-4 min-w-4" />
-                </Button>
-                <Zoom 
-                    zoomScale={viewerStates.zoomScale} 
-                    screenWidth={screenWidth}
-                    onZoomIn={onZoomIn}
-                    onZoomOut={onZoomOut}
-                    onResetZoom={onResetZoom}
-                />
-                {!disableShare && <Share shareUrl={shareUrl} />}
-                <Button
-                    onClick={fullScreen}
-                    variant='secondary'
-                    size='icon'
-                    className='size-8 min-w-8'
-                >
-                    {screenfull.isEnabled && screenfull.isFullscreen ?
-                        <Minimize className="size-4 min-w-4" /> :
-                        <Maximize className="size-4 min-w-4" />
-                    }
-                </Button>
-                <div className="flex-1"></div>
+            <div className="flex items-center justify-between gap-2 pb-2 max-xl:pt-2">
+                <div className="flex items-center gap-2">
+                    <Button
+                        onClick={() => { screenWidth < 768 ? flipbookRef.current.pageFlip().turnToPreviousPage() : flipbookRef.current.pageFlip().flipPrev() }}
+                        disabled={viewerStates.currentPageIndex === 0}
+                        variant='secondary'
+                        size='icon'
+                        className='size-8 min-w-8'
+                    >
+                        <ChevronLeft className="size-4 min-w-4" />
+                    </Button>
+                    <Button
+                        onClick={() => { screenWidth < 768 ? flipbookRef.current.pageFlip().turnToNextPage() : flipbookRef.current.pageFlip().flipNext() }}
+                        disabled={viewerStates.currentPageIndex === pdfDetails?.totalPages - 1 || viewerStates.currentPageIndex === pdfDetails?.totalPages - 2}
+                        variant='secondary'
+                        size='icon'
+                        className='size-8 min-w-8'
+                    >
+                        <ChevronRight className="size-4 min-w-4" />
+                    </Button>
+                    <Zoom
+                        zoomScale={viewerStates.zoomScale}
+                        screenWidth={screenWidth}
+                        onZoomIn={onZoomIn}
+                        onZoomOut={onZoomOut}
+                        onResetZoom={onResetZoom}
+                    />
+                    {!disableShare && <Share shareUrl={shareUrl} />}
+                    <Button
+                        onClick={fullScreen}
+                        variant='secondary'
+                        size='icon'
+                        className='size-8 min-w-8'
+                    >
+                        {screenfull.isEnabled && screenfull.isFullscreen ?
+                            <Minimize className="size-4 min-w-4" /> :
+                            <Maximize className="size-4 min-w-4" />
+                        }
+                    </Button>
+                </div>
                 {pdfDetails?.totalPages > 0 && (
                     <p className='text-sm font-medium'>
                         {pagesInFlipView} of {pdfDetails?.totalPages}

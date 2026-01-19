@@ -9,7 +9,7 @@ const MemoizedPdfPage = memo(PdfPage)
 const FlipbookLoader = forwardRef(({ pdfDetails, scale, viewerStates, setViewerStates, viewRange, setViewRange }, ref) => {
     const { width } = useScreenSize();
     const debouncedZoom = useDebounce(viewerStates.zoomScale, 500);
-    
+
     const isPageInViewRange = (index) => { return index >= viewRange[0] && index <= viewRange[1] };
     const isPageInView = (index) => { return viewerStates.currentPageIndex === index || viewerStates.currentPageIndex + 1 === index };
 
@@ -40,7 +40,7 @@ const FlipbookLoader = forwardRef(({ pdfDetails, scale, viewerStates, setViewerS
                 size="stretch"
                 drawShadow={true}
                 flippingTime={700}
-                usePortrait={false}
+                usePortrait={width < 768}
                 showCover={true}
                 showPageCorners={false}
                 onFlip={onFlip}

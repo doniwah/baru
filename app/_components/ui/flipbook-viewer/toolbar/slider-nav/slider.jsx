@@ -101,7 +101,7 @@ const Slider = ({ maxSlide = 10, currentSlide, onSlideChange, totalPages }) => {
         onSlideChange(debouncedValue);
     }, [debouncedValue, onSlideChange]);
     return (
-        <div className="py-4">
+        <div className="pb-2">
             <div
                 ref={sliderRef}
                 className="relative w-full h-1 bg-foreground rounded-full"

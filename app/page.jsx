@@ -1,5 +1,10 @@
-import FlipbookViewer from '@/app/_components/ui/flipbook-viewer/flipbook-viewer'
+import dynamic from 'next/dynamic'
 import React from 'react'
+
+const FlipbookViewer = dynamic(() => import('@/app/_components/ui/flipbook-viewer/flipbook-viewer'), {
+  ssr: false,
+  loading: () => <div className="w-full h-full flex items-center justify-center text-white">Loading Viewer...</div>
+})
 
 const Page = () => {
   return (

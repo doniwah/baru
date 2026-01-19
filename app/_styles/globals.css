@@ -185,6 +185,7 @@ body {
 /* Enhanced Book Shadow Effects - Desktop Only */
 @media (min-width: 768px) {
 
+
   /* Spine shadow (center dark shadow like real book) */
   .stf__wrapper .stf__block .stf__item.--hard.--left::after,
   .stf__wrapper .stf__block .stf__item.--hard.--right::after {
@@ -192,20 +193,40 @@ body {
     position: absolute;
     top: 0;
     bottom: 0;
-    width: 60px;
-    background: linear-gradient(to right, transparent, rgba(0, 0, 0, 0.8) 50%, transparent);
+    width: 80px;
     pointer-events: none;
     z-index: 10;
   }
 
   .stf__wrapper .stf__block .stf__item.--hard.--left::after {
     right: 0;
-    background: linear-gradient(to left, rgba(0, 0, 0, 0.9), transparent);
+    background:
+      radial-gradient(ellipse at right center,
+        rgba(0, 0, 0, 0.6) 0%,
+        rgba(0, 0, 0, 0.4) 30%,
+        rgba(0, 0, 0, 0.2) 60%,
+        transparent 100%);
   }
 
   .stf__wrapper .stf__block .stf__item.--hard.--right::after {
     left: 0;
-    background: linear-gradient(to right, rgba(0, 0, 0, 0.9), transparent);
+    background:
+      radial-gradient(ellipse at left center,
+        rgba(0, 0, 0, 0.6) 0%,
+        rgba(0, 0, 0, 0.4) 30%,
+        rgba(0, 0, 0, 0.2) 60%,
+        transparent 100%);
+  }
+
+  /* Add curved/bulging effect to pages near spine */
+  .stf__wrapper .stf__block .stf__item.--hard.--left {
+    transform-origin: right center;
+    transform: perspective(2000px) rotateY(-0.5deg);
+  }
+
+  .stf__wrapper .stf__block .stf__item.--hard.--right {
+    transform-origin: left center;
+    transform: perspective(2000px) rotateY(0.5deg);
   }
 
   /* Enhanced page shadows */

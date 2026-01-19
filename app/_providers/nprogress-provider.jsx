@@ -1,8 +1,7 @@
 'use client'
 import { AppProgressBar as ProgressBar } from 'next-nprogress-bar';
-import config from '@/tailwind.config.js';
 import { Suspense } from 'react';
-const primaryColor = config.theme.extend.colors.primary.DEFAULT; // Primary color of website
+const primaryColor = "hsl(var(--primary))"; // Primary color of website
 
 export default function NprogressProviders({ children }) {
     return (

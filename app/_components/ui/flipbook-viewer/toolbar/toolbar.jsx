@@ -29,7 +29,7 @@ const Toolbar = ({ flipbookRef, containerRef, screenfull, pdfDetails, viewerStat
         }
     }, [screenfull, containerRef]);
 
-    // Key bindings >>>>>>>>>
+
     useEffect(() => {
         keyboardjs.bind('right', () => {
             screenWidth < 768 ? flipbookRef.current.pageFlip().turnToNextPage() : flipbookRef.current.pageFlip().flipNext();
@@ -70,7 +70,6 @@ const Toolbar = ({ flipbookRef, containerRef, screenfull, pdfDetails, viewerStat
                         onZoomOut={onZoomOut}
                         onResetZoom={onResetZoom}
                     />
-
                     <div className="h-4 w-[1px] bg-gray-600 mx-2" />
 
                     <Button
@@ -82,7 +81,6 @@ const Toolbar = ({ flipbookRef, containerRef, screenfull, pdfDetails, viewerStat
                     >
                         <ChevronLeft className="size-5" />
                     </Button>
-
                     {/* Page Info for Mobile embedded in center controls if needed, 
                         but let's keep it simple here or it gets crowded. 
                         Actually, let's put the mobile page info here too so it's central. */}
@@ -91,7 +89,6 @@ const Toolbar = ({ flipbookRef, containerRef, screenfull, pdfDetails, viewerStat
                             {viewerStates.currentPageIndex + 1}
                         </div>
                     )}
-
                     <Button
                         onClick={() => { screenWidth < 768 ? flipbookRef.current.pageFlip().turnToNextPage() : flipbookRef.current.pageFlip().flipNext() }}
                         disabled={viewerStates.currentPageIndex === pdfDetails?.totalPages - 1 || viewerStates.currentPageIndex === pdfDetails?.totalPages - 2}
@@ -101,7 +98,6 @@ const Toolbar = ({ flipbookRef, containerRef, screenfull, pdfDetails, viewerStat
                     >
                         <ChevronRight className="size-5" />
                     </Button>
-
                     <Button
                         onClick={onToggleThumbnails}
                         variant='ghost'

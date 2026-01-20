@@ -29,6 +29,7 @@ const FlipbookViewer = ({ pdfUrl, shareUrl, disableShare = false, className }) =
   const [showThumbnails, setShowThumbnails] = useState(false);
   const [isClient, setIsClient] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [viewportPct, setViewportPct] = useState({ x: 0, y: 0, w: 1, h: 1 });
 
   const containerRef = useRef(null); // For full screen container
   const flipbookRef = useRef(null);
@@ -93,16 +94,19 @@ const FlipbookViewer = ({ pdfUrl, shareUrl, disableShare = false, className }) =
 
   // Custom zoom functions
   const handleZoomIn = useCallback(() => {
-    setViewerStates(prev => ({
-      ...prev,
-      zoomScale: Math.min(prev.zoomScale + 0.25, 5)
-    }));
+    setViewerStates(prev => {
+      const targetScale = prev.zoomScale > 1.5 ? 1 : 4;
+      return {
+        ...prev,
+        zoomScale: targetScale
+      };
+    });
   }, []);
 
   const handleZoomOut = useCallback(() => {
     setViewerStates(prev => ({
       ...prev,
-      zoomScale: Math.max(prev.zoomScale - 0.25, 1)
+      zoomScale: 1
     }));
   }, []);
 
@@ -118,23 +122,68 @@ const FlipbookViewer = ({ pdfUrl, shareUrl, disableShare = false, className }) =
       ref={containerRef}
       className={cn(
         "relative w-full overflow-hidden",
-        "h-[80vh] md:h-[20.163rem] md:xs:h-[25.163rem] lg:h-[33.163rem] xl:h-[34.66rem]",
+        "h-[80vh] md:h-[85vh]",
         isFullscreen ? "bg-black !h-screen" : "bg-transparent",
         className
       )}
     >
       {pdfLoading && <PdfLoading />}
-      <Document file={pdfUrl} onLoadSuccess={onDocumentLoadSuccess} loading={<></>} >
+      <Document file={pdfUrl} onLoadSuccess={onDocumentLoadSuccess} loading={<></>} className="w-full h-full">
         {(isClient && pdfDetails && !pdfLoading) &&
-          <div className="w-full h-full relative bg-transparent flex items-center justify-center pt-14 md:pt-16">
-            <div className="w-full h-full overflow-hidden flex items-center justify-center">
+          <div className="w-full h-full relative bg-transparent flex flex-col">
+            {/* Toolbar Spacer (since Toolbar is fixed default, but we moved it to header relative in previous steps... wait, Toolbar IS fixed top-0 in code I saw) */}
+            {/* The Toolbar is rendered later with fixed top-0. We need to reserve space for it. */}
+            <div className="h-14 md:h-16 w-full flex-none" />
+
+            {/* Content Area */}
+            {/* Content Area with Drag-to-Pan */}
+            <div
+              ref={(node) => {
+                // We can assign this ref to a new variable if needed, but we need it for drag logic
+                // Let's reuse a ref for this container
+                if (node) containerRef.current = node; // Wait, containerRef is used for fullscreen. Let's create a new ref for scroll area.
+              }}
+              className={cn(
+                "flex-1 w-full relative min-h-0 overflow-hidden", // Base classes
+                viewerStates.zoomScale > 1 ? "cursor-grab active:cursor-grabbing" : "" // Cursor
+              )}
+              onMouseDown={(e) => {
+                if (viewerStates.zoomScale <= 1) return;
+                e.preventDefault();
+                const container = e.currentTarget;
+                container.dataset.isDown = "true";
+                container.dataset.startX = e.pageX - container.offsetLeft;
+                container.dataset.startY = e.pageY - container.offsetTop;
+                container.dataset.scrollLeft = container.scrollLeft;
+                container.dataset.scrollTop = container.scrollTop;
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.dataset.isDown = "false";
+              }}
+              onMouseUp={(e) => {
+                e.currentTarget.dataset.isDown = "false";
+              }}
+              onMouseMove={(e) => {
+                const container = e.currentTarget;
+                if (container.dataset.isDown !== "true" || viewerStates.zoomScale <= 1) return;
+                e.preventDefault();
+                const x = e.pageX - container.offsetLeft;
+                const y = e.pageY - container.offsetTop;
+                const walkX = (x - parseFloat(container.dataset.startX)) * 1.5; // Speed multiplier
+                const walkY = (y - parseFloat(container.dataset.startY)) * 1.5;
+                container.scrollLeft = parseFloat(container.dataset.scrollLeft) - walkX;
+                container.scrollTop = parseFloat(container.dataset.scrollTop) - walkY;
+              }}
+            >
               <div
                 style={{
-                  transform: `scale(${viewerStates.zoomScale})`,
-                  transformOrigin: 'center center',
-                  transition: 'transform 0.2s ease-out',
                   width: '100%',
-                  height: '100%'
+                  height: '100%',
+                  minHeight: '100%',
+                  minWidth: '100%',
+                  display: 'flex',
+                  alignItems: viewerStates.zoomScale > 1 ? 'flex-start' : 'center', // Align top-left when zoomed to allow scrolling from top
+                  justifyContent: viewerStates.zoomScale > 1 ? 'flex-start' : 'center'
                 }}
               >
                 <Flipbook

@@ -14,18 +14,23 @@ const useRefSize = () => {
     };
 
     useEffect(() => {
-        handleResize(); // Initial width calculation
+        if (!ref.current) return;
 
-        const handleOrientationChange = () => {
-            handleResize();
-        };
+        const observer = new ResizeObserver((entries) => {
+            if (entries[0]) {
+                const { width, height } = entries[0].contentRect;
 
-        window.addEventListener('resize', handleResize);
-        window.addEventListener('orientationchange', handleOrientationChange);
+                setSize({
+                    width: entries[0].contentRect.width,
+                    height: entries[0].contentRect.height
+                });
+            }
+        });
+
+        observer.observe(ref.current);
 
         return () => {
-            window.removeEventListener('resize', handleResize);
-            window.removeEventListener('orientationchange', handleOrientationChange);
+            observer.disconnect();
         };
     }, []);
 

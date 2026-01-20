@@ -7,8 +7,8 @@ import screenfull from 'screenfull';
 
 const Flipbook = memo(({ viewerStates, setViewerStates, flipbookRef, pdfDetails }) => {
     const { ref, width, height, refreshSize } = useRefSize();
-    const [scale, setScale] = useState(1); // Max scale for flipbook
-    const [wrapperCss, setWrapperCss] = useState({});
+    const [scale, setScale] = useState(0); // Max scale for flipbook
+    const [wrapperCss, setWrapperCss] = useState(null);
     const [viewRange, setViewRange] = useState([0, 4]);
     const [isFullscreen, setIsFullscreen] = useState(false);
 
@@ -40,15 +40,17 @@ const Flipbook = memo(({ viewerStates, setViewerStates, flipbookRef, pdfDetails 
             const availableHeight = height - paddingOffset;
 
             // Always use Math.min to prevent cropping
-            const calculatedScale = Math.min(
+            const baseScale = Math.min(
                 availableWidth / (pageMultiplier * pdfDetails.width),
                 availableHeight / pdfDetails.height
             );
 
-            setScale(calculatedScale);
+            const finalScale = baseScale; // Keep it 1x base currency
+
+            setScale(finalScale);
             setWrapperCss({
-                width: `${pdfDetails.width * calculatedScale * pageMultiplier}px`,
-                height: `${pdfDetails.height * calculatedScale}px`,
+                width: `${pdfDetails.width * finalScale * pageMultiplier}px`,
+                height: `${pdfDetails.height * finalScale}px`,
             });
         }
     }, [pdfDetails, width, height, isFullscreen]);
@@ -110,24 +112,46 @@ const Flipbook = memo(({ viewerStates, setViewerStates, flipbookRef, pdfDetails 
         };
     }, [flipbookRef, viewerStates.zoomScale, ref]);
 
+    const isZoomed = viewerStates.zoomScale > 1;
+
     return (
         <div ref={ref} className={cn(
-            "relative h-[15rem] xs:h-[20rem] lg:h-[28rem] xl:h-[30rem] w-full flex justify-center items-center overflow-hidden bg-transparent",
-            screenfull?.isFullscreen &&
-            "!h-screen bg-black"
+            "relative flex flex-shrink-0",
+            isZoomed ? "w-fit h-fit justify-start items-start overflow-visible" : "w-full h-full justify-center items-center overflow-hidden",
+            "bg-transparent",
+            screenfull?.isFullscreen && "!h-screen bg-black"
         )}>
-            <div className='overflow-hidden flex justify-center items-center h-full w-full'>
-                {pdfDetails && scale && (
-                    <div style={wrapperCss}>
-                        <FlipbookLoader
-                            ref={flipbookRef}
-                            pdfDetails={pdfDetails}
-                            scale={scale}
-                            viewRange={viewRange}
-                            setViewRange={setViewRange}
-                            viewerStates={viewerStates}
-                            setViewerStates={setViewerStates}
-                        />
+            {/* If zoomed, we disable the inner flex centering and just let the spacer div take over */}
+            <div className={cn(
+                "flex flex-shrink-0",
+                isZoomed ? "w-fit h-fit justify-start items-start overflow-visible" : "w-full h-full justify-center items-center overflow-hidden"
+            )}>
+                {pdfDetails && scale > 0 && wrapperCss && width > 0 && height > 0 && (
+                    // Spacer Div: Forces the parent to scroll by occupying full zoomed size
+                    <div
+                        style={{
+                            width: isZoomed ? (parseFloat(wrapperCss.width) * viewerStates.zoomScale) : wrapperCss.width,
+                            height: isZoomed ? (parseFloat(wrapperCss.height) * viewerStates.zoomScale) : wrapperCss.height,
+                            position: 'relative',
+                            flexShrink: 0
+                        }}
+                    >
+                        {/* Transformed Div: Scales the content visually */}
+                        <div style={{
+                            ...wrapperCss,
+                            transform: isZoomed ? `scale(${viewerStates.zoomScale})` : 'none',
+                            transformOrigin: 'top left',
+                        }}>
+                            <FlipbookLoader
+                                ref={flipbookRef}
+                                pdfDetails={pdfDetails}
+                                scale={scale}
+                                viewRange={viewRange}
+                                setViewRange={setViewRange}
+                                viewerStates={viewerStates}
+                                setViewerStates={setViewerStates}
+                            />
+                        </div>
                     </div>
                 )}
             </div>

@@ -95,7 +95,7 @@ const FlipbookViewer = ({ pdfUrl, shareUrl, disableShare = false, className }) =
   // Custom zoom functions
   const handleZoomIn = useCallback(() => {
     setViewerStates(prev => {
-      const targetScale = prev.zoomScale > 1.5 ? 1 : 4;
+      const targetScale = prev.zoomScale > 1.5 ? 1 : 1.2; // Mengubah dari 4 ke 2.5 agar tidak terlalu besar (penyebab layar putih)
       return {
         ...prev,
         zoomScale: targetScale
@@ -121,9 +121,9 @@ const FlipbookViewer = ({ pdfUrl, shareUrl, disableShare = false, className }) =
     <div
       ref={containerRef}
       className={cn(
-        "relative w-full overflow-hidden",
-        "h-[80vh] md:h-[85vh]",
-        isFullscreen ? "bg-black !h-screen" : "bg-transparent",
+        (isFullscreen || viewerStates.zoomScale > 1)
+          ? "fixed inset-0 z-50 bg-black h-screen w-screen"
+          : "relative w-full overflow-hidden h-[80vh] md:h-[85vh] bg-transparent",
         className
       )}
     >

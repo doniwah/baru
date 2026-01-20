@@ -6,9 +6,9 @@ import { cn } from '@/app/_lib/utils';
 import screenfull from 'screenfull';
 
 const Flipbook = memo(({ viewerStates, setViewerStates, flipbookRef, pdfDetails }) => {
-    const { ref, width, height, refreshSize } = useRefSize();
-    const [scale, setScale] = useState(0); // Max scale for flipbook
-    const [wrapperCss, setWrapperCss] = useState(null);
+    const { ref: rulerRef, width, height, refreshSize } = useRefSize();
+    const [scale, setScale] = useState(1); // Max scale for flipbook
+    const [wrapperCss, setWrapperCss] = useState({});
     const [viewRange, setViewRange] = useState([0, 4]);
     const [isFullscreen, setIsFullscreen] = useState(false);
 
@@ -79,7 +79,9 @@ const Flipbook = memo(({ viewerStates, setViewerStates, flipbookRef, pdfDetails 
 
     // Wheel scroll navigation >>>>>>>>
     useEffect(() => {
-        const container = ref.current;
+        const container = rulerRef.current; // Use rulerRef to attach listener? Or maybe window? 
+        // Actually, for wheel event, detecting on the container is fine. 
+        // rulerRef is the viewport.
         if (!container || !flipbookRef?.current) return;
 
         let scrollTimeout;
@@ -110,52 +112,62 @@ const Flipbook = memo(({ viewerStates, setViewerStates, flipbookRef, pdfDetails 
             container.removeEventListener('wheel', handleWheel);
             clearTimeout(scrollTimeout);
         };
-    }, [flipbookRef, viewerStates.zoomScale, ref]);
+    }, [flipbookRef, viewerStates.zoomScale, rulerRef]);
 
     const isZoomed = viewerStates.zoomScale > 1;
 
     return (
-        <div ref={ref} className={cn(
-            "relative flex flex-shrink-0",
-            isZoomed ? "w-fit h-fit justify-start items-start overflow-visible" : "w-full h-full justify-center items-center overflow-hidden",
-            "bg-transparent",
-            screenfull?.isFullscreen && "!h-screen bg-black"
-        )}>
-            {/* If zoomed, we disable the inner flex centering and just let the spacer div take over */}
+        <>
+            {/* Hidden Ruler to measure the available viewport size constant */}
+            <div
+                ref={rulerRef}
+                className="absolute inset-0 w-full h-full pointer-events-none invisible"
+                style={{ zIndex: -1 }} // Ensure it stays behind
+            />
+
             <div className={cn(
-                "flex flex-shrink-0",
-                isZoomed ? "w-fit h-fit justify-start items-start overflow-visible" : "w-full h-full justify-center items-center overflow-hidden"
+                "relative flex flex-shrink-0",
+                isZoomed ? "w-fit h-fit justify-start items-start overflow-visible" : "w-full h-full justify-center items-center overflow-hidden",
+                isZoomed && "m-auto", // Center the content when zoomed if it's smaller than viewport
+                "bg-transparent",
+                screenfull?.isFullscreen && "!h-screen bg-black"
             )}>
-                {pdfDetails && scale > 0 && wrapperCss && width > 0 && height > 0 && (
-                    // Spacer Div: Forces the parent to scroll by occupying full zoomed size
-                    <div
-                        style={{
-                            width: isZoomed ? (parseFloat(wrapperCss.width) * viewerStates.zoomScale) : wrapperCss.width,
-                            height: isZoomed ? (parseFloat(wrapperCss.height) * viewerStates.zoomScale) : wrapperCss.height,
-                            position: 'relative',
-                            flexShrink: 0
-                        }}
-                    >
-                        {/* Transformed Div: Scales the content visually */}
-                        <div style={{
-                            ...wrapperCss,
-                            transform: isZoomed ? `scale(${viewerStates.zoomScale})` : 'none',
-                            transformOrigin: 'top left',
-                        }}>
-                            <FlipbookLoader
-                                ref={flipbookRef}
-                                pdfDetails={pdfDetails}
-                                scale={scale}
-                                viewRange={viewRange}
-                                setViewRange={setViewRange}
-                                viewerStates={viewerStates}
-                                setViewerStates={setViewerStates}
-                            />
+                {/* If zoomed, we disable the inner flex centering and just let the spacer div take over */}
+                <div className={cn(
+                    "flex flex-shrink-0",
+                    isZoomed ? "w-fit h-fit justify-start items-start overflow-visible" : "w-full h-full justify-center items-center overflow-hidden"
+                )}>
+                    {pdfDetails && scale > 0 && wrapperCss && width > 0 && height > 0 && (
+                        // Spacer Div: Forces the parent to scroll by occupying full zoomed size
+                        <div
+                            style={{
+                                width: isZoomed ? (parseFloat(wrapperCss?.width || 0) * viewerStates.zoomScale) : wrapperCss?.width,
+                                height: isZoomed ? (parseFloat(wrapperCss?.height || 0) * viewerStates.zoomScale) : wrapperCss?.height,
+                                position: 'relative',
+                                flexShrink: 0
+                            }}
+                        >
+                            {/* Transformed Div: Scales the content visually */}
+                            <div style={{
+                                ...wrapperCss,
+                                transform: isZoomed ? `scale(${viewerStates.zoomScale})` : 'none',
+                                transformOrigin: 'top left',
+                            }}>
+                                <FlipbookLoader
+                                    ref={flipbookRef}
+                                    pdfDetails={pdfDetails}
+                                    scale={scale}
+                                    viewRange={viewRange}
+                                    setViewRange={setViewRange}
+                                    viewerStates={viewerStates}
+                                    setViewerStates={setViewerStates}
+                                />
+                            </div>
                         </div>
-                    </div>
-                )}
+                    )}
+                </div>
             </div>
-        </div>
+        </>
     );
 });
 

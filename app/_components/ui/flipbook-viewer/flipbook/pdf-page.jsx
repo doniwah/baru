@@ -14,7 +14,7 @@ const PdfPage = forwardRef(({ page, height, zoomScale, isPageInView, isPageInVie
         >
             {isPageInViewRange && (
                 <Page
-                    devicePixelRatio={(isPageInView && zoomScale > 1.2) ? Math.min(zoomScale * window.devicePixelRatio, 4) : window.devicePixelRatio}
+                    devicePixelRatio={window.devicePixelRatio}
                     height={height}
                     pageNumber={page}
                     loading={<></>}

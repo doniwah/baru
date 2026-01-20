@@ -95,7 +95,12 @@ const FlipbookViewer = ({ pdfUrl, shareUrl, disableShare = false, className }) =
   // Custom zoom functions
   const handleZoomIn = useCallback(() => {
     setViewerStates(prev => {
-      const targetScale = prev.zoomScale > 1.5 ? 1 : 1.2; // Mengubah dari 4 ke 2.5 agar tidak terlalu besar (penyebab layar putih)
+      let targetScale = 1;
+      if (prev.zoomScale < 1.5) targetScale = 1.5;
+      else if (prev.zoomScale < 1.7) targetScale = 1.7;
+      else if (prev.zoomScale < 1.8) targetScale = 1.8;
+      else targetScale = 1; // Reset if already max
+
       return {
         ...prev,
         zoomScale: targetScale

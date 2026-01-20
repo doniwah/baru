@@ -1,7 +1,12 @@
 'use client';
 import React, { useCallback, useRef, useState, useEffect } from "react";
-import Toolbar from "./toolbar/toolbar";
+import Toolbar from './toolbar/toolbar';
+import dynamic from 'next/dynamic';
+const ThumbnailStrip = dynamic(() => import('./thumbnail-strip/thumbnail-strip'), {
+  ssr: false,
+});
 import { cn } from "@/app/_lib/utils";
+
 import Flipbook from "./flipbook/flipbook";
 import screenfull from 'screenfull';
 import { Document } from "react-pdf";
@@ -9,20 +14,33 @@ import PdfLoading from "./pad-loading/pdf-loading";
 import { pdfjs } from 'react-pdf';
 import 'react-pdf/dist/Page/AnnotationLayer.css';
 import 'react-pdf/dist/Page/TextLayer.css';
+import useScreenSize from '@/app/_hooks/use-screensize';
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
-const FlipbookViewer = ({ pdfUrl, shareUrl, className, disableShare }) => {
-  const containerRef = useRef(); // For full screen container
-  const flipbookRef = useRef();
-  const [pdfLoading, setPdfLoading] = useState(true);
+const FlipbookViewer = ({ pdfUrl, shareUrl, disableShare = false, className }) => {
+  const [viewerStates, setViewerStates] = useState({
+    zoomScale: 1,
+    pdfScale: 1,
+    currentPageIndex: 0
+  });
   const [pdfDetails, setPdfDetails] = useState(null);
+  const [pdfLoading, setPdfLoading] = useState(true);
+  const [showThumbnails, setShowThumbnails] = useState(false);
   const [isClient, setIsClient] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const [viewerStates, setViewerStates] = useState({
-    currentPageIndex: 0,
-    zoomScale: 1,
-  });
+
+  const containerRef = useRef(null); // For full screen container
+  const flipbookRef = useRef(null);
+  const { width: screenWidth } = useScreenSize();
+
+  const handleToggleThumbnails = () => setShowThumbnails(prev => !prev);
+
+  const handleThumbnailClick = (pageIndex) => {
+    if (flipbookRef.current) {
+      flipbookRef.current.pageFlip().turnToPage(pageIndex);
+    }
+  };
 
   // Ensure client-side only rendering
   useEffect(() => {
@@ -94,7 +112,7 @@ const FlipbookViewer = ({ pdfUrl, shareUrl, className, disableShare }) => {
       {pdfLoading && <PdfLoading />}
       <Document file={pdfUrl} onLoadSuccess={onDocumentLoadSuccess} loading={<></>} >
         {(isClient && pdfDetails && !pdfLoading) &&
-          <div className="w-full h-full relative bg-transparent flex items-center justify-center">
+          <div className="w-full h-full relative bg-transparent flex items-center justify-center pt-14 md:pt-16">
             <div className="w-full h-full overflow-hidden flex items-center justify-center">
               <div
                 style={{
@@ -114,21 +132,32 @@ const FlipbookViewer = ({ pdfUrl, shareUrl, className, disableShare }) => {
                 />
               </div>
             </div>
-            <div className="fixed bottom-0 left-0 right-0 z-50 w-full">
+            <div className="fixed top-0 left-0 right-0 z-50 w-full">
               <Toolbar
-                viewerStates={viewerStates}
-                setViewerStates={setViewerStates}
                 containerRef={containerRef}
                 flipbookRef={flipbookRef}
-                screenfull={screenfull}
                 pdfDetails={pdfDetails}
-                shareUrl={shareUrl}
-                disableShare={disableShare}
+                viewerStates={viewerStates}
                 onZoomIn={handleZoomIn}
                 onZoomOut={handleZoomOut}
                 onResetZoom={handleResetZoom}
+                screenfull={screenfull}
+                shareUrl={shareUrl}
+                disableShare={disableShare}
+                showThumbnails={showThumbnails}
+                onToggleThumbnails={handleToggleThumbnails}
               />
             </div>
+
+            {showThumbnails && pdfDetails && (
+              <ThumbnailStrip
+                pdfUrl={pdfUrl}
+                totalPages={pdfDetails.totalPages}
+                currentPageIndex={viewerStates.currentPageIndex}
+                onPageClick={handleThumbnailClick}
+                onClose={() => setShowThumbnails(false)}
+              />
+            )}
           </div>
         }
       </Document>

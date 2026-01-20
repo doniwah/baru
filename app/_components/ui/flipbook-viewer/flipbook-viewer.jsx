@@ -37,8 +37,22 @@ const FlipbookViewer = ({ pdfUrl, shareUrl, disableShare = false, className }) =
   const handleToggleThumbnails = () => setShowThumbnails(prev => !prev);
 
   const handleThumbnailClick = (pageIndex) => {
-    if (flipbookRef.current) {
-      flipbookRef.current.pageFlip().turnToPage(pageIndex);
+    if (flipbookRef.current && flipbookRef.current.pageFlip()) {
+      const pageFlip = flipbookRef.current.pageFlip();
+      const current = pageFlip.getCurrentPageIndex();
+
+      // Calculate distance
+      const diff = pageIndex - current;
+
+      // If just 1 or 2 pages away (next/prev spread), use animation methods
+      if (diff > 0 && diff <= 2) {
+        pageFlip.flipNext();
+      } else if (diff < 0 && diff >= -2) {
+        pageFlip.flipPrev();
+      } else {
+        // Further away, just jump
+        pageFlip.turnToPage(pageIndex);
+      }
     }
   };
 

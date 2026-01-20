@@ -58,7 +58,7 @@ const Toolbar = ({ flipbookRef, containerRef, screenfull, pdfDetails, viewerStat
             <div className="grid grid-cols-3 items-center px-4 py-3">
                 {/* Left Side: Title/Logo */}
                 <div className="flex items-center justify-start font-bold text-xl tracking-wider">
-                    <span className="text-white">Colours</span>
+                    <span className="text-white">Lex Suite</span>
                 </div>
 
                 {/* Center: Actions */}
